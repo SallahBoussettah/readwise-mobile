@@ -26,4 +26,5 @@ export enum View {
   Bookshelf = 'bookshelf',
   AddBook = 'addBook',
   BookDetail = 'bookDetail',
+  Settings = 'settings',
 }

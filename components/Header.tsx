@@ -7,16 +7,12 @@ import { Theme } from '../theme';
 interface HeaderProps {
   currentView: ViewType;
   onNavigate: (view: ViewType) => void;
-  darkMode: boolean;
-  toggleDarkMode: () => void;
   theme: Theme;
 }
 
 const Header: React.FC<HeaderProps> = ({ 
   currentView, 
   onNavigate, 
-  darkMode, 
-  toggleDarkMode, 
   theme 
 }) => {
   return (
@@ -62,13 +58,16 @@ const Header: React.FC<HeaderProps> = ({
         <View style={[styles.divider, { backgroundColor: theme.border }]} />
         
         <TouchableOpacity
-          style={styles.iconButton}
-          onPress={toggleDarkMode}
+          style={[
+            styles.iconButton,
+            currentView === ViewType.Settings && { backgroundColor: theme.primaryLight }
+          ]}
+          onPress={() => onNavigate(ViewType.Settings)}
         >
           <Ionicons 
-            name={darkMode ? "sunny" : "moon"} 
+            name="settings" 
             size={24} 
-            color={theme.textSecondary} 
+            color={currentView === ViewType.Settings ? theme.primary : theme.textSecondary} 
           />
         </TouchableOpacity>
       </View>

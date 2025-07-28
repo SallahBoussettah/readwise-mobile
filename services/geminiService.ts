@@ -1,13 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { GEMINI_API_KEY } from "@env";
 import { Book } from "../types";
-
-const apiKey = GEMINI_API_KEY;
+import { storageService } from "./storageService";
 
 export const getReadingSuggestions = async (finishedBooks: Book[]): Promise<string> => {
+    const apiKey = await storageService.loadApiKey();
+    
     if (!apiKey) {
         console.error("API_KEY is not set. Cannot fetch suggestions.");
-        throw new Error("API_KEY for Gemini is not configured.");
+        throw new Error("Please set your Gemini API key in Settings.");
     }
 
     const ai = new GoogleGenAI({ apiKey });

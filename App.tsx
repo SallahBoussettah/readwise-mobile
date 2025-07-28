@@ -9,6 +9,7 @@ import Header from './components/Header';
 import BookshelfView from './components/BookshelfView';
 import AddBookView from './components/AddBookView';
 import BookDetailView from './components/BookDetailView';
+import SettingsView from './components/SettingsView';
 import SuggestionsModal from './components/SuggestionsModal';
 
 export default function App() {
@@ -114,6 +115,14 @@ export default function App() {
             theme={theme}
           />
         );
+      case ViewType.Settings:
+        return (
+          <SettingsView
+            theme={theme}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
+          />
+        );
       case ViewType.Bookshelf:
       default:
         return (
@@ -137,8 +146,6 @@ export default function App() {
         <Header 
           currentView={currentView}
           onNavigate={navigateTo}
-          darkMode={darkMode}
-          toggleDarkMode={() => setDarkMode(!darkMode)}
           theme={theme}
         />
         

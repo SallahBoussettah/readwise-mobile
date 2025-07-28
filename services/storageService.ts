@@ -4,6 +4,7 @@ import { Book, Quote } from '../types';
 const BOOKS_KEY = 'readwise_books';
 const QUOTES_KEY = 'readwise_quotes';
 const DARK_MODE_KEY = 'readwise_dark_mode';
+const API_KEY_KEY = 'readwise_api_key';
 
 export const storageService = {
   // Books
@@ -60,6 +61,24 @@ export const storageService = {
     } catch (error) {
       console.error('Error loading dark mode:', error);
       return false;
+    }
+  },
+
+  // API Key
+  async saveApiKey(apiKey: string): Promise<void> {
+    try {
+      await AsyncStorage.setItem(API_KEY_KEY, apiKey);
+    } catch (error) {
+      console.error('Error saving API key:', error);
+    }
+  },
+
+  async loadApiKey(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem(API_KEY_KEY);
+    } catch (error) {
+      console.error('Error loading API key:', error);
+      return null;
     }
   }
 };
