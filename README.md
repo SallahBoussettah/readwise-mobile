@@ -71,7 +71,7 @@
 3. **Install the app** and open ReadWise+
 4. **Configure Settings**:
    - Tap the ⚙️ settings icon
-   - Add your [Gemini API key](https://makersuite.google.com/app/apikey) for AI suggestions
+   - Add your [Gemini API key](https://aistudio.google.com/app/apikey) for AI suggestions
    - Choose your preferred theme
 5. **Start Reading!** Search for books and build your personal library
 
@@ -87,7 +87,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/readwise-mobile.git
+git clone https://github.com/SallahBoussettah/readwise-mobile.git
 cd readwise-mobile
 
 # Install dependencies
@@ -157,7 +157,7 @@ ReadWiseMobile/
 - ✅ **Rich metadata** - Covers, descriptions, ratings
 
 #### Gemini AI API
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Create a new API key
 3. Open ReadWise+ → Settings → AI Suggestions
 4. Paste your API key and save
@@ -253,16 +253,14 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/readwise-mobile/issues)
-- 💡 **Feature Requests**: [Start a discussion](https://github.com/yourusername/readwise-mobile/discussions)
-- 📧 **Contact**: [your.email@example.com](mailto:your.email@example.com)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/SallahBoussettah/readwise-mobile/issues)
+- 💡 **Feature Requests**: [Start a discussion](https://github.com/SallahBoussettah/readwise-mobile/discussions)
+- 📧 **Contact**: [boussettah.dev@gmail.com](mailto:boussettah.dev@gmail.com)
 
 ---
 
 <div align="center">
   
   **Made with ❤️ for book lovers everywhere**
-  
-  ⭐ **Star this repo if you found it helpful!** ⭐
   
 </div>
