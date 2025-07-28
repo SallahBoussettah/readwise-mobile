@@ -6,6 +6,7 @@ import {
   TouchableOpacity, 
   ScrollView, 
   ActivityIndicator,
+  Image,
   StyleSheet 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +29,11 @@ interface Suggestion {
   reason: string;
 }
 
+interface EnhancedSuggestion extends Suggestion {
+  book?: Book;
+  isLoading?: boolean;
+}
+
 const SuggestionsModal: React.FC<SuggestionsModalProps> = ({
   visible,
   onClose,
@@ -35,7 +41,7 @@ const SuggestionsModal: React.FC<SuggestionsModalProps> = ({
   onAddSuggestedBook,
   theme
 }) => {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<EnhancedSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,8 +57,36 @@ const SuggestionsModal: React.FC<SuggestionsModalProps> = ({
     
     try {
       const response = await getReadingSuggestions(finishedBooks);
-      const parsedSuggestions = JSON.parse(response);
-      setSuggestions(parsedSuggestions);
+      const parsedSuggestions: Suggestion[] = JSON.parse(response);
+      
+      // Initialize suggestions without book data
+      const enhancedSuggestions: EnhancedSuggestion[] = parsedSuggestions.map(suggestion => ({
+        ...suggestion,
+        isLoading: true
+      }));
+      setSuggestions(enhancedSuggestions);
+      
+      // Fetch book data for each suggestion
+      const updatedSuggestions = await Promise.all(
+        enhancedSuggestions.map(async (suggestion, index) => {
+          try {
+            const searchResults = await searchBooks(`${suggestion.title} ${suggestion.author}`);
+            return {
+              ...suggestion,
+              book: searchResults.length > 0 ? searchResults[0] : undefined,
+              isLoading: false
+            };
+          } catch (error) {
+            console.error(`Error fetching book data for ${suggestion.title}:`, error);
+            return {
+              ...suggestion,
+              isLoading: false
+            };
+          }
+        })
+      );
+      
+      setSuggestions(updatedSuggestions);
     } catch (err) {
       setError('Failed to get suggestions. Please try again.');
       console.error('Error fetching suggestions:', err);
@@ -61,13 +95,21 @@ const SuggestionsModal: React.FC<SuggestionsModalProps> = ({
     }
   };
 
-  const handleAddSuggestion = async (suggestion: Suggestion) => {
+  const handleAddSuggestion = async (suggestion: EnhancedSuggestion) => {
     try {
-      const searchResults = await searchBooks(`${suggestion.title} ${suggestion.author}`);
-      if (searchResults.length > 0) {
-        const added = onAddSuggestedBook(searchResults[0]);
+      if (suggestion.book) {
+        const added = onAddSuggestedBook(suggestion.book);
         if (added) {
           // You could show a success message here
+        }
+      } else {
+        // Fallback: search for the book if not already found
+        const searchResults = await searchBooks(`${suggestion.title} ${suggestion.author}`);
+        if (searchResults.length > 0) {
+          const added = onAddSuggestedBook(searchResults[0]);
+          if (added) {
+            // You could show a success message here
+          }
         }
       }
     } catch (error) {
@@ -114,15 +156,38 @@ const SuggestionsModal: React.FC<SuggestionsModalProps> = ({
                 key={index} 
                 style={[styles.suggestionCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
               >
-                <Text style={[styles.suggestionTitle, { color: theme.text }]}>
-                  {suggestion.title}
-                </Text>
-                <Text style={[styles.suggestionAuthor, { color: theme.textSecondary }]}>
-                  by {suggestion.author}
-                </Text>
-                <Text style={[styles.suggestionReason, { color: theme.textSecondary }]}>
-                  {suggestion.reason}
-                </Text>
+                <View style={styles.suggestionContent}>
+                  <View style={styles.coverContainer}>
+                    {suggestion.isLoading ? (
+                      <View style={[styles.coverPlaceholder, { backgroundColor: theme.borderLight }]}>
+                        <ActivityIndicator size="small" color={theme.textMuted} />
+                      </View>
+                    ) : suggestion.book?.coverUrl ? (
+                      <Image 
+                        source={{ uri: suggestion.book.coverUrl }} 
+                        style={styles.cover}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={[styles.coverPlaceholder, { backgroundColor: theme.borderLight }]}>
+                        <Ionicons name="book-outline" size={24} color={theme.textMuted} />
+                      </View>
+                    )}
+                  </View>
+                  
+                  <View style={styles.suggestionInfo}>
+                    <Text style={[styles.suggestionTitle, { color: theme.text }]}>
+                      {suggestion.title}
+                    </Text>
+                    <Text style={[styles.suggestionAuthor, { color: theme.textSecondary }]}>
+                      by {suggestion.author}
+                    </Text>
+                    <Text style={[styles.suggestionReason, { color: theme.textSecondary }]}>
+                      {suggestion.reason}
+                    </Text>
+                  </View>
+                </View>
+                
                 <TouchableOpacity
                   style={[styles.addButton, { backgroundColor: theme.primary }]}
                   onPress={() => handleAddSuggestion(suggestion)}
@@ -190,19 +255,42 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
   },
+  suggestionContent: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  coverContainer: {
+    marginRight: 16,
+  },
+  cover: {
+    width: 60,
+    height: 90,
+    borderRadius: 6,
+  },
+  coverPlaceholder: {
+    width: 60,
+    height: 90,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  suggestionInfo: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   suggestionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   suggestionAuthor: {
-    fontSize: 16,
-    marginBottom: 12,
+    fontSize: 14,
+    marginBottom: 8,
   },
   suggestionReason: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
+    fontSize: 13,
+    lineHeight: 18,
+    flex: 1,
   },
   addButton: {
     flexDirection: 'row',
